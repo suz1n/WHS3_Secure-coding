@@ -1,0 +1,108 @@
+# Base 템플릿 구성 (templates/base.html)
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: /api/placeholder/ {% if debug %}blob:{% endif %}; connect-src 'self';">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="no-referrer-when-downgrade">
+    <meta name="description" content="안전한 중고거래 플랫폼">
+    <title>{% block title %}중고마켓{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <a href="{% url 'products:product_list' %}">중고마켓</a>
+            </div>
+            <div class="search-bar">
+                <form id="search-form" action="{% url 'products:product_list' %}" method="get">
+                    <input type="text" id="search-input" name="search" placeholder="상품을 검색해보세요" autocomplete="off" maxlength="50" value="{{ search_query|default:'' }}">
+                    <button type="submit" class="search-button"><i class="search-icon">🔍</i></button>
+                </form>
+            </div>
+            <ul class="nav-menu">
+                {% if user.is_authenticated %}
+                    <li>
+                        <a href="{% url 'products:product_create' %}" id="sell-btn">판매하기</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'chat:chat_list' %}" id="messages-btn">
+                            메시지
+                            {% if unread_message_count > 0 %}
+                                <span class="badge">{{ unread_message_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounts:profile' %}" id="mypage-btn">마이페이지</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounts:logout' %}" id="logout-btn">로그아웃</a>
+                    </li>
+                    {% if user.is_staff %}
+                        <li>
+                            <a href="{% url 'reports:admin_report_list' %}" id="admin-btn">관리자</a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    <li>
+                        <a href="{% url 'accounts:login' %}" id="login-btn">로그인</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'accounts:signup' %}" id="signup-btn">회원가입</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </header>
+
+    <main class="container">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="notification notification-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-section">
+                <h3>중고마켓</h3>
+                <p>안전하고 신뢰할 수 있는 중고거래 플랫폼</p>
+            </div>
+            <div class="footer-section">
+                <h3>고객센터</h3>
+                <ul>
+                    <li><a href="#">자주 묻는 질문</a></li>
+                    <li><a href="#">이용약관</a></li>
+                    <li><a href="#">개인정보처리방침</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>문의하기</h3>
+                <p>이메일: support@tinysecondhand.com</p>
+                <p>전화: 02-123-4567</p>
+            </div>
+        </div>
+        <div class="copyright container">
+            <p>&copy; 2025 Tiny Second-hand Shopping Platform. All rights reserved.</p>
+            <p><small>보안 신고: security@tinysecondhand.com</small></p>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/script.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

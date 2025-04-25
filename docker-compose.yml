@@ -1,0 +1,30 @@
+# docker-compose.yml
+version: '3'
+
+services:
+  web:
+    build: .
+    restart: always
+    volumes:
+      - ./:/app
+      - static_volume:/app/static_root
+      - media_volume:/app/media
+    depends_on:
+      - redis
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=change_this_in_production
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+    ports:
+      - "8000:8000"
+
+  redis:
+    image: redis:7
+    restart: always
+    volumes:
+      - redis_data:/data
+
+volumes:
+  static_volume:
+  media_volume:
+  redis_data:

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: /api/placeholder/; connect-src 'self';">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="no-referrer-when-downgrade">
+    <meta name="description" content="안전한 중고거래 플랫폼">
+    <title>Tiny Second-hand Shopping Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">중고마켓</div>
+            <div class="search-bar">
+                <form id="search-form" onsubmit="event.preventDefault(); searchProducts(document.getElementById('search-input').value);">
+                    <input type="text" id="search-input" placeholder="상품을 검색해보세요" autocomplete="off" maxlength="50">
+                    <button type="submit" class="search-button"><i class="search-icon">🔍</i></button>
+                </form>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#" id="login-btn">로그인</a></li>
+                <li><a href="#" id="signup-btn">회원가입</a></li>
+                <li><a href="#" id="sell-btn">판매하기</a></li>
+                <li><a href="#" id="messages-btn">메시지</a></li>
+                <li><a href="#" id="mypage-btn">마이페이지</a></li>
+                <li><a href="#" id="logout-btn" style="display: none;">로그아웃</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>안전한 중고거래 플랫폼</h1>
+            <p>믿을 수 있는 이웃과 함께하는 중고거래, 지금 시작해보세요!</p>
+            <a href="#" class="btn" id="explore-btn">상품 둘러보기</a>
+        </section>
+
+        <section class="product-section">
+            <h2>인기 상품</h2>
+            <div class="product-grid" id="product-grid">
+                <!-- 상품들이 JavaScript로 동적으로 추가됩니다 -->
+            </div>
+        </section>
+    </main>
+
+    <!-- 로그인 모달 -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>로그인</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">이메일</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">비밀번호</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn">로그인</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 회원가입 모달 -->
+    <div class="modal" id="signup-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>회원가입</h2>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="signup-username">이름</label>
+                    <input type="text" id="signup-username" required pattern="[A-Za-z0-9가-힣]{2,20}" title="2-20자의 영문, 숫자, 한글만 사용 가능합니다">
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">이메일</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">비밀번호</label>
+                    <input type="password" id="signup-password" required pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$" title="최소 8자, 영문자, 숫자, 특수문자를 포함해야 합니다">
+                </div>
+                <div class="form-group">
+                    <label for="signup-password-confirm">비밀번호 확인</label>
+                    <input type="password" id="signup-password-confirm" required>
+                </div>
+                <button type="submit" class="btn">회원가입</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 상품 등록 모달 -->
+    <div class="modal" id="sell-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>상품 등록</h2>
+            <form id="sell-form">
+                <div class="form-group">
+                    <label for="product-title">상품명</label>
+                    <input type="text" id="product-title" required maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="product-price">가격</label>
+                    <input type="number" id="product-price" required min="0" step="100">
+                </div>
+                <div class="form-group">
+                    <label for="product-description">상품 설명</label>
+                    <textarea id="product-description" rows="5" required maxlength="1000"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="product-image">상품 이미지</label>
+                    <input type="file" id="product-image" accept="image/*" required>
+                </div>
+                <button type="submit" class="btn">등록하기</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 신고 모달 -->
+    <div class="modal" id="report-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>상품 신고하기</h2>
+            <form id="report-form">
+                <div class="form-group">
+                    <label for="report-reason">신고 사유</label>
+                    <select id="report-reason" required>
+                        <option value="">-- 신고 사유 선택 --</option>
+                        <option value="prohibited">금지된 상품</option>
+                        <option value="counterfeit">위조품/가품</option>
+                        <option value="misleading">상품 정보 불일치</option>
+                        <option value="fraud">사기 의심</option>
+                        <option value="other">기타</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="report-detail">상세 내용</label>
+                    <textarea id="report-detail" rows="5" required maxlength="500" placeholder="신고 사유에 대한 상세 내용을 입력해주세요."></textarea>
+                </div>
+                <button type="submit" class="btn btn-danger">신고하기</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 채팅 모달 -->
+    <div class="modal" id="chat-modal">
+        <div class="modal-content chat-container">
+            <div class="chat-header">
+                <h3>대화하기</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <p class="empty-chat-message">대화를 시작해보세요!</p>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chat-message-input" placeholder="메시지를 입력하세요..." maxlength="500">
+                <button type="button" class="btn">전송</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 마이페이지 모달 -->
+    <div class="modal" id="mypage-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>마이페이지</h2>
+            <div class="tabs">
+                <button class="tab-button active" data-tab="profile">프로필</button>
+                <button class="tab-button" data-tab="my-products">내 상품</button>
+                <button class="tab-button" data-tab="messages">메시지</button>
+                <button class="tab-button" data-tab="security">보안 설정</button>
+            </div>
+            
+            <div class="tab-content" id="profile-tab">
+                <h3>프로필 정보</h3>
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label for="profile-username">이름</label>
+                        <input type="text" id="profile-username" required pattern="[A-Za-z0-9가-힣]{2,20}" title="2-20자의 영문, 숫자, 한글만 사용 가능합니다">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-email">이메일</label>
+                        <input type="email" id="profile-email" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-intro">소개글</label>
+                        <textarea id="profile-intro" rows="3" maxlength="200" placeholder="자기 소개를 작성해주세요."></textarea>
+                    </div>
+                    <button type="submit" class="btn">프로필 저장</button>
+                </form>
+            </div>
+            
+            <div class="tab-content" id="my-products-tab" style="display: none;">
+                <h3>내가 등록한 상품</h3>
+                <div class="my-products-list" id="my-products-list">
+                    <p class="loading">상품을 불러오는 중...</p>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="messages-tab" style="display: none;">
+                <h3>메시지</h3>
+                <div class="chat-list" id="chat-list">
+                    <p class="loading">메시지를 불러오는 중...</p>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="security-tab" style="display: none;">
+                <h3>보안 설정</h3>
+                <form id="password-change-form">
+                    <div class="form-group">
+                        <label for="current-password">현재 비밀번호</label>
+                        <input type="password" id="current-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">새 비밀번호</label>
+                        <input type="password" id="new-password" required pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$" title="최소 8자, 영문자, 숫자, 특수문자를 포함해야 합니다">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password-confirm">새 비밀번호 확인</label>
+                        <input type="password" id="new-password-confirm" required>
+                    </div>
+                    <button type="submit" class="btn">비밀번호 변경</button>
+                </form>
+                
+                <div class="security-info">
+                    <h4>보안 로그</h4>
+                    <p>최근 로그인: <span id="last-login">정보 없음</span></p>
+                    <button id="logout-all-devices" class="btn btn-danger">모든 기기에서 로그아웃</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 관리자 모달 -->
+    <div class="modal" id="admin-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>관리자 페이지</h2>
+            <div class="tabs">
+                <button class="tab-button active" data-tab="user-management">사용자 관리</button>
+                <button class="tab-button" data-tab="product-management">상품 관리</button>
+                <button class="tab-button" data-tab="report-management">신고 관리</button>
+                <button class="tab-button" data-tab="security-logs">보안 로그</button>
+            </div>
+            
+            <div class="tab-content" id="user-management-tab">
+                <h3>사용자 관리</h3>
+                <div class="search-box">
+                    <input type="text" id="user-search" placeholder="사용자 검색...">
+                    <button id="user-search-btn" class="btn">검색</button>
+                </div>
+                <div class="user-list" id="user-list">
+                    <p class="loading">사용자를 불러오는 중...</p>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="product-management-tab" style="display: none;">
+                <h3>상품 관리</h3>
+                <div class="search-box">
+                    <input type="text" id="admin-product-search" placeholder="상품 검색...">
+                    <button id="admin-product-search-btn" class="btn">검색</button>
+                </div>
+                <div class="admin-product-list" id="admin-product-list">
+                    <p class="loading">상품을 불러오는 중...</p>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="report-management-tab" style="display: none;">
+                <h3>신고 관리</h3>
+                <div class="report-filters">
+                    <select id="report-status-filter">
+                        <option value="all">모든 상태</option>
+                        <option value="pending">처리 대기</option>
+                        <option value="approved">승인됨</option>
+                        <option value="rejected">거부됨</option>
+                    </select>
+                </div>
+                <div class="report-list" id="report-list">
+                    <p class="loading">신고를 불러오는 중...</p>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="security-logs-tab" style="display: none;">
+                <h3>보안 로그</h3>
+                <div class="log-filters">
+                    <select id="log-type-filter">
+                        <option value="all">모든 유형</option>
+                        <option value="login">로그인</option>
+                        <option value="security_alert">보안 경고</option>
+                        <option value="admin_action">관리자 활동</option>
+                    </select>
+                </div>
+                <div class="security-log-list" id="security-log-list">
+                    <p class="loading">로그를 불러오는 중...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-section">
+                <h3>중고마켓</h3>
+                <p>안전하고 신뢰할 수 있는 중고거래 플랫폼</p>
+            </div>
+            <div class="footer-section">
+                <h3>고객센터</h3>
+                <ul>
+                    <li><a href="#">자주 묻는 질문</a></li>
+                    <li><a href="#">이용약관</a></li>
+                    <li><a href="#">개인정보처리방침</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>문의하기</h3>
+                <p>이메일: support@tinysecondhand.com</p>
+                <p>전화: 02-123-4567</p>
+            </div>
+        </div>
+        <div class="copyright container">
+            <p>&copy; 2025 Tiny Second-hand Shopping Platform. All rights reserved.</p>
+            <p><small>보안 신고: security@tinysecondhand.com</small></p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
